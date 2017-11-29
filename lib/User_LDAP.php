@@ -149,7 +149,6 @@ class User_LDAP implements IUserBackend, UserInterface {
 			return false;
 		}
 
-		$this->userManager->updateAccount($userEntry);
 
 		//FIXME how can we trigger this for saml? needs to move to core!
 		if ($this->config->getSystemValue('enable_avatars', true) === true) {
