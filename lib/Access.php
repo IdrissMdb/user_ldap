@@ -628,13 +628,14 @@ class Access implements IUserTools {
 		return false;
 	}
 
-	private function shouldMapToUsername($username) {
+	public function shouldMapToUsername($username) {
 		$user = \OC::$server->getUserManager()->get($username);
 		if($user === null) {
 			// No account exists with this username, use this mapping
 			return true;
 		}
-		if($user->getBackendClassName() === User_Proxy::class) {
+		if($user->getBackendClassName() === "LDAP") {
+			\OC::$server->getLogger()->info('Reusing existing owncloud account with username: '.$username);
 			// Account with same username exists, and matching backend, we can use this
 			return true;
 		} else {

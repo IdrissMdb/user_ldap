@@ -314,7 +314,7 @@ class Manager {
 		$intName = trim($this->access->sanitizeUsername($userEntry->getUsername()));
 
 		//a new user/group! Add it only if it doesn't conflict with other backend's users or existing groups
-		if($intName !== '' && !\OCP\User::userExists($intName)) {
+		if($intName !== '' && $this->access->shouldMapToUsername($intName)) {
 			if($mapper->map($dn, $intName, $uuid)) {
 				return $intName;
 			}
