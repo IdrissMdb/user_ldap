@@ -609,7 +609,7 @@ class Access implements IUserTools {
 		// outside of core user management will still cache the user as non-existing.
 		$originalTTL = $this->connection->ldapCacheTTL;
 		$this->connection->setConfiguration(array('ldapCacheTTL' => 0));
-		if(($isUser && !\OCP\User::userExists($intName))
+		if(($isUser && $this->shouldMapToUsername($intName))
 			|| (!$isUser && !\OC::$server->getGroupManager()->groupExists($intName))) {
 			if($mapper->map($fdn, $intName, $uuid)) {
 				$this->connection->setConfiguration(array('ldapCacheTTL' => $originalTTL));
@@ -626,6 +626,21 @@ class Access implements IUserTools {
 		//if everything else did not help..
 		Util::writeLog('user_ldap', 'Could not create unique name for '.$fdn.'.', Util::INFO);
 		return false;
+	}
+
+	private function shouldMapToUsername($username) {
+		$user = \OC::$server->getUserManager()->get($username);
+		if($user === null) {
+			// No account exists with this username, use this mapping
+			return true;
+		}
+		if($user->getBackendClassName() === User_Proxy::class) {
+			// Account with same username exists, and matching backend, we can use this
+			return true;
+		} else {
+			// Account exists, but is from a different backend, dont use this mapping!
+			return false;
+		}
 	}
 
 	/**
