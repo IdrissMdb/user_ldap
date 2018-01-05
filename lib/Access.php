@@ -631,13 +631,13 @@ class Access implements IUserTools {
 			// No account exists with this username, use this mapping
 			return true;
 		}
-		if(get_class($user) === User_Proxy::class) {
+		if($user->getBackendClassName() === 'LDAP') {
 			\OC::$server->getLogger()->info('Reusing existing owncloud account with username: '.$username);
 			// Account with same username exists, and matching backend, we can use this
 			return true;
 		} else {
 			// Account exists, but is from a different backend, dont use this mapping!
-			\OC::$server->getLogger()->info('Cannot reuse account with username: '.$username . ' because it is from a different backend: '. get_class($user));
+			\OC::$server->getLogger()->info('Cannot reuse account with username: '.$username . ' because it is from a different backend: '. $user->getBackendClassName());
 			return false;
 		}
 	}
