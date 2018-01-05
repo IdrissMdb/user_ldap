@@ -611,10 +611,13 @@ class Access implements IUserTools {
 		$this->connection->setConfiguration(array('ldapCacheTTL' => 0));
 		if(($isUser && $this->shouldMapToUsername($intName))
 			|| (!$isUser && !\OC::$server->getGroupManager()->groupExists($intName))) {
+			Util::writeLog('user_ldap', 'Reusing existing mapping for uid: '.$intName . ' to uuid: '.$uuid, Util::INFO);
 			if($mapper->map($fdn, $intName, $uuid)) {
 				$this->connection->setConfiguration(array('ldapCacheTTL' => $originalTTL));
 				return $intName;
 			}
+		} else {
+			Util::writeLog('user_ldap', 'User/group collision, creating alternate uid. Existing user: '.$intName, Util::INFO);
 		}
 		$this->connection->setConfiguration(array('ldapCacheTTL' => $originalTTL));
 
@@ -631,15 +634,17 @@ class Access implements IUserTools {
 	public function shouldMapToUsername($username) {
 		$user = \OC::$server->getUserManager()->get($username);
 		if($user === null) {
+			\OC::$server->getLogger()->info('No account exists with username: '.$username . ' so cannot reuse mapping');
 			// No account exists with this username, use this mapping
 			return true;
 		}
-		if($user->getBackendClassName() === "LDAP") {
+		if(get_class($user) === User_Proxy::class) {
 			\OC::$server->getLogger()->info('Reusing existing owncloud account with username: '.$username);
 			// Account with same username exists, and matching backend, we can use this
 			return true;
 		} else {
 			// Account exists, but is from a different backend, dont use this mapping!
+			\OC::$server->getLogger()->info('Cannot reuse account with username: '.$username . ' because it is from a different backend: '. get_class($user));
 			return false;
 		}
 	}
