@@ -320,13 +320,7 @@ class Manager {
 			}
 		}
 
-		// FIXME move to a better place, naming related. eg DistinguishedNameUtils
-		$altName = $this->access->createAltInternalOwnCloudName($intName, true);
-		if(is_string($altName) && $mapper->map($dn, $altName, $uuid)) {
-			return $altName;
-		}
-
-		throw new \OutOfBoundsException("Could not create unique name for $dn.");
+		throw new \OutOfBoundsException("Mapping collision for DN $dn and UUID $uuid. Couldnt map to: $intName");
 	}
 
 	/**

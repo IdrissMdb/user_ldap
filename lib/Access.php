@@ -616,18 +616,11 @@ class Access implements IUserTools {
 				$this->connection->setConfiguration(array('ldapCacheTTL' => $originalTTL));
 				return $intName;
 			}
-		} else {
-			Util::writeLog('user_ldap', 'User/group collision, creating alternate uid. Existing user: '.$intName, Util::INFO);
 		}
 		$this->connection->setConfiguration(array('ldapCacheTTL' => $originalTTL));
-
-		$altName = $this->createAltInternalOwnCloudName($intName, $isUser);
-		if(is_string($altName) && $mapper->map($fdn, $altName, $uuid)) {
-			return $altName;
-		}
+		Util::writeLog('user_ldap', "Mapping collision for DN $fdn and UUID $uuid. Couldnt map to: $intName", Util::INFO);
 
 		//if everything else did not help..
-		Util::writeLog('user_ldap', 'Could not create unique name for '.$fdn.'.', Util::INFO);
 		return false;
 	}
 
