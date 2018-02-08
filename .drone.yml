@@ -27,7 +27,7 @@ pipeline:
   install-server:
     image: owncloudci/core
     pull: true
-    download_url: http://172.17.0.1/owncloud-daily/owncloud-daily-master-qa.tar.bz2
+    version: daily-master-qa
     db_type: sqlite
     db_name: owncloud
     db_host: mysql:3306
