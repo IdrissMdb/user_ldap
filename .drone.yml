@@ -2,6 +2,8 @@ workspace:
   base: /var/www/owncloud
   path: apps/user_ldap
 
+branches: [master]
+
 pipeline:
   ldap:
     image: dinkel/openldap
@@ -12,17 +14,6 @@ pipeline:
       - SLAPD_ORGANIZATION=ownCloud
       - SLAPD_PASSWORD=admin
       - SLAPD_ADDITIONAL_MODULES=memberof
-
-  ldap2:
-    image: osixia/openldap:1.1.7
-    detach: true
-    pull: true
-    environment:
-      - LDAP_DOMAIN=owncloud.com
-      - LDAP_ORGANISATION=ownCloud
-      - LDAP_ROOTPASS=admin
-      - LDAP_BASE_DN=dc=owncloud,dc=com
-      - LDAP_LOGIN_DN=cn=admin,dc=owncloud,dc=com
 
   install-server:
     image: owncloudci/core
@@ -61,5 +52,19 @@ pipeline:
     environment:
       - BROWSER=chrome #chrome or firefox
     commands:
-      - php -f ./tests/Integration/Lib/IntegrationBackupServer.php
+      - php -f ./tests/Integration/Lib/${INTEGRATION_TEST_SCRIPT}
 
+matrix:
+  INTEGRATION_TEST_SCRIPT:
+    - IntegrationTestAccessGroupsMatchFilter.php
+    - IntegrationBackupServer.php
+    - User/IntegrationTestUserAvatar.php
+    - User/IntegrationTestUserDisplayName.php
+    - IntegrationTestBackupServer.php
+    - IntegrationConnect.php
+    - IntegrationTestBatchApplyUserAttributes.php
+    - IntegrationTestConnect.php
+    - IntegrationTestCountUsersByLoginName.php
+    - IntegrationTestFetchUsersByLoginName.php
+    - IntegrationTestPaging.php
+    
